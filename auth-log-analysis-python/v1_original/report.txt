@@ -1,0 +1,14 @@
+AUTHENTICATION LOG REPORT
+=========================
+Total events: 1200
+Successful logins: 1072
+Failed logins: 128
+Failed from external IPs: 78
+Failed at night (22:00-05:59): 26
+
+ALERTS (5)
+CRITICAL | possible compromise | charlie logged in from 198.51.100.24 at 2026-10-20 11:16:56 after 18 failed attempts
+HIGH | brute force | bob from 192.0.2.88 | 8 failed attempts
+HIGH | brute force | charlie from 198.51.100.24 | 18 failed attempts
+HIGH | brute force | dana from 192.0.2.44 | 14 failed attempts
+HIGH | password spraying | 203.0.113.77 | 16 failed attempts against 16 different accounts

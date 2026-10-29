@@ -1,0 +1,89 @@
+========================================================================
+AUTHENTICATION LOG ANALYSIS - INCIDENT REPORT
+========================================================================
+Period analysed          : 2026-10-19 05:36:08  ->  2026-10-24 09:12:00
+Total events             : 1200
+Successful (4624)        : 1072
+Failed (4625)            : 128
+Failed from external IPs : 78
+Failed at night (22:00-05:59): 26
+Rows rejected by validation  : 0
+Rows with consistency warnings: 0
+
+FAILURE REASONS
+------------------------------------------------------------------------
+  Wrong password                     68
+  Repeated failures                  32
+  Shared source across accounts      16
+  Unusual source                      7
+  Isolated failure                    4
+  MFA failure                         1
+
+TOP FAILING SOURCE IPs
+------------------------------------------------------------------------
+  198.51.100.24          18
+  203.0.113.77           16
+  192.0.2.44             14
+  192.0.2.88              8
+  198.51.100.10           4
+
+TOP FAILING ACCOUNTS
+------------------------------------------------------------------------
+  charlie                21
+  dana                   16
+  bob                     9
+  noah                    7
+  mason                   7
+
+FINDINGS (5)
+========================================================================
+[1] CRITICAL | success_after_failures | MITRE T1110 / T1078
+    Successful logon for 'charlie' after repeated failures from 198.51.100.24
+    Source IP : 198.51.100.24
+    Accounts  : charlie
+    Time      : 2026-10-20 11:14:02  ->  2026-10-20 11:16:56  (19 events)
+    Details   : 18 failed logons were followed by a successful one 14s later. The successful logon used auth_method='password', mfa_result='not_required' on WS-ENG-03.
+    Action    : Treat the account as potentially compromised: reset the password, revoke active sessions, review activity after the logon, and block the source IP.
+
+[2] HIGH | brute_force | MITRE T1110.001
+    Repeated failed logons for 'charlie' from 198.51.100.24
+    Source IP : 198.51.100.24
+    Accounts  : charlie
+    Time      : 2026-10-20 11:14:02  ->  2026-10-20 11:16:42  (18 events)
+    Details   : 18 failed logons in 160s (external source). MFA results: {'not_required': 18}. Failure reasons: {'Repeated failures': 18}. 2 successful logon(s) from this IP in the following hour (accounts: charlie).
+    Action    : Verify with the user; consider blocking the source IP and forcing a password reset if the activity is not legitimate.
+
+[3] HIGH | password_spraying | MITRE T1110.003
+    Possible password spraying from 203.0.113.77
+    Source IP : 203.0.113.77
+    Accounts  : 16 accounts
+    Time      : 2026-10-21 02:13:00  ->  2026-10-21 02:15:15  (16 events)
+    Details   : 16 failed logons against 16 different accounts in 135s (external source). No successful logon from this IP in the following hour. Occurred outside business hours (22:00-05:59).
+    Action    : Block or rate-limit the source IP, review the targeted accounts for any later successful logon, and consider enforcing MFA.
+
+[4] HIGH | brute_force | MITRE T1110.001
+    Repeated failed logons for 'dana' from 192.0.2.44
+    Source IP : 192.0.2.44
+    Accounts  : dana
+    Time      : 2026-10-22 12:21:03  ->  2026-10-22 12:23:26  (14 events)
+    Details   : 14 failed logons in 143s (external source). MFA results: {'not_required': 14}. Failure reasons: {'Repeated failures': 14}. No successful logon from this IP in the following hour.
+    Action    : Verify with the user; consider blocking the source IP and forcing a password reset if the activity is not legitimate.
+
+[5] HIGH | brute_force | MITRE T1110.001
+    Repeated failed logons for 'bob' from 192.0.2.88
+    Source IP : 192.0.2.88
+    Accounts  : bob
+    Time      : 2026-10-23 23:48:10  ->  2026-10-23 23:50:20  (8 events)
+    Details   : 8 failed logons in 130s (external source). MFA results: {'not_reached': 7, 'failed': 1}. Failure reasons: {'Unusual source': 7, 'MFA failure': 1}. No successful logon from this IP in the following hour. Occurred outside business hours (22:00-05:59).
+    Action    : Verify with the user; consider blocking the source IP and forcing a password reset if the activity is not legitimate.
+
+PARAMETERS USED
+------------------------------------------------------------------------
+  bf_threshold  5
+  bf_window     5
+  spray_users   5
+  spray_window  10
+  sf_failures   5
+  sf_window     10
+
+Note: findings are leads for investigation, not confirmed incidents.
